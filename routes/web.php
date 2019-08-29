@@ -12,13 +12,6 @@
 */
 
 Route::get('/', function () {
-    return view('welcome');
+    return view('index');
 });
-Route::any('test','TestController@test');
-Route::any('excel','TestController@excel');
-Route::any('upd','TestController@upd');
-Route::any('one','TestController@get_all_user_list');
-Route::any('any','TestController@any');
-Route::any('excurl','TestController@excurl');
 
-Route::any('jsapi','JsapiController@index');

@@ -149,11 +149,11 @@
 			success: function (res) {
 				console.log(res);
 				zhdj.config({
-					agentId: res.data.agentId, // 必填，第三方应用 suite_id
-					corpId: res.data.corpId,//必填，授权机构 id 
-					timeStamp: res.data.timeStamp, // 必填，生成签名的时间戳 
-					nonceStr: res.data.nonceStr, // 必填，生成签名的随机串 
-					signature: res.data.signature, // 必填，签名 
+					agentId: res.datas.agentId, // 必填，第三方应用 suite_id
+					corpId: res.datas.corpId,//必填，授权机构 id
+					timeStamp: res.datas.timeStamp, // 必填，生成签名的时间戳
+					nonceStr: res.datas.nonceStr, // 必填，生成签名的随机串
+					signature: res.datas.signature, // 必填，签名
 					jsApiList: ['onShare', 'onAddToDesktop'] // 必填，需要使用的 jsapi 列表 
 				});
 				zhdj.ready(function () {

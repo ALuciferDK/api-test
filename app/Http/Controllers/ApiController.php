@@ -13,6 +13,7 @@ use Illuminate\Http\Request;
 use Illuminate\Pagination;
 use Cache;
 
+header('Access-Control-Allow-Origin:*');
 class ApiController extends Controller
 {
     //public $access_token = "99f323d52f3c956d128e2a18d4e61f22";
@@ -61,6 +62,8 @@ class ApiController extends Controller
             $this->add_log('','aes_log','获取授权成功');
             $msg = json_encode($msg);
             $this->returnLevel('auth_code',$msg);
+            $this->getAlwaysPass();//开始出发获取并缓存permanent_code
+            $this->getTokenTow();//开始获取并缓存机构token
             return '获取授权success';
         }
         else if($msg['info_type'] == 'cancel_auth')
@@ -100,14 +103,20 @@ class ApiController extends Controller
     //获取机构token
     public function getTokenTow()
     {
+
         $auth_corp_info = Cache::get('permanent_code');//获取缓存的auth_corp_info
         $access = Cache::get('access');//获取第三方token
         $auth_corp_info = json_decode($auth_corp_info,true);
         $access = json_decode($access,true);
+
+        if(empty($auth_corp_info) || empty($access))
+        {
+            return $this->returnInfo('error','请先获取permanent_code或者第三方token');
+        }
         $data['auth_corpid'] = $auth_corp_info['auth_corp_info']['corpid'];
         $data['permanent_code'] = $auth_corp_info['permanent_code'];
         $data['access_token'] = $access['suite_access_token'];
-        $url = "'.$this->>api_pre.'/open/service/get_corp_code";
+        $url = ''.env('API_PRE').'/open/service/get_corp_code';
         $result = $this->CurlSend($url,"post",$data);
         $resu = $this->returnLevel('access_token',$result);//通过缓存存入机构access_token
         return $resu;
@@ -141,6 +150,7 @@ class ApiController extends Controller
     //获取用户信息
     public function getUserInfo()
     {
+        $this->getAccessToken();
         $code = Cache::get('code');//获取回调code，只能使用一次，时间7200秒
         $access = Cache::get('access');//获取第三方access_token
         $access = json_decode($access,true);
@@ -159,14 +169,16 @@ class ApiController extends Controller
     {
         $user_ticket = Cache::get('user_ticket');//获取缓存的user_ticket
         $user_ticket = json_decode($user_ticket,true);//获取第三方access_token
+        $user_ticket = $user_ticket['user_ticket']?$user_ticket['user_ticket']:'';
         $access = Cache::get('access');
         $access = json_decode($access,true);
         $access = $access['suite_access_token'];
+        //var_dump($user_ticket);die;
         if(empty($user_ticket))
         {
             return $this->returnInfo('error','请先获取user_ticket');
         }
-        $url = ''.env('API_PRE').'/open/service/getuserdetail3rd?access_token='.$access.'&user_ticket='.$user_ticket['user_ticket'];
+        $url = ''.env('API_PRE').'/open/service/getuserdetail3rd?access_token='.$access.'&user_ticket='.$user_ticket;
         $result = $this->CurlSend($url);
         $souse = $this->returnLevel('org_uuid',$result);//通过缓存存入用户敏感信息包括下一个接口所需的org_uuid
         return $souse;
@@ -366,4 +378,9 @@ class ApiController extends Controller
         return $sContent;
     }
 
+    public function clearCache()
+    {
+        Cache::flush();
+        return 'success';
+    }
 }

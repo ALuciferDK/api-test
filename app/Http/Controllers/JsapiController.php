@@ -30,8 +30,9 @@ class JsapiController extends Controller
                 $arr=json_decode($access_token,1);
                 $access_token=$arr['access_token'];
             }
-			
+			// echo $access_token;die;
 			$url='https://devdangfei.nfapp.southcn.com/open/service/ticket/get_jsapi_ticket?access_token='.$access_token.'&type=jsapi';
+
 			$arr=json_decode($this->CurlSend($url),1);
 			$arr['expires_in']=$arr['expires_in']+7200;
 			file_put_contents('jsapi_ticket',json_encode($arr));

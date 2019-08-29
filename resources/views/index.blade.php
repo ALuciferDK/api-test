@@ -59,10 +59,12 @@
 
 </html>
 
+<script src="https://devdangfei.nfapp.southcn.com//html/open/js/zhdj-1.0.0.js"></script>
 <script>
 	let baseUrl = "http://39.105.34.162";
 
 	// window.onLoad = clear()
+	window.onLoad = getJsapi()
 
 	// 用户信息按钮
 	$("#btn1").on("touchend", function () {
@@ -138,6 +140,38 @@
 			}
 		})
 	}
+
+	//调用js-sdk api/jsapi
+	function getJsapi() {
+		$.ajax({
+			url: baseUrl + "/api/jsapi",
+			type: "get",
+			success: function (res) {
+				console.log(res);
+				zhdj.config({
+					agentId: res.data.agentId, // 必填，第三方应用 suite_id
+					corpId: res.data.corpId,//必填，授权机构 id 
+					timeStamp: res.data.timeStamp, // 必填，生成签名的时间戳 
+					nonceStr: res.data.nonceStr, // 必填，生成签名的随机串 
+					signature: res.data.signature, // 必填，签名 
+					jsApiList: ['onShare', 'onAddToDesktop'] // 必填，需要使用的 jsapi 列表 
+				});
+				zhdj.ready(function () {
+					//配置分享信息
+					zhdj.onShare({
+						shareUrl: location.href,
+						shareDesc: '测试demo',
+						shareTtile: '第三方demo应用',
+						shareIcon: ''
+					})
+				})
+			},
+			error: function (error) {
+				return error
+			}
+		})
+	}
+
 	//获取token
 	function getToken() {
 		$.ajax({
@@ -340,7 +374,6 @@
 			}
 		})
 	}
-
 
 
 
